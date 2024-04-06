@@ -1,34 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Table from './Table';
 
-const CommitList: React.FC<{username:string, repository: string}> = ({ username, repository }) => {
+const CommitList: React.FC<{ username: string, repository: string }> = ({ username, repository }) => {
   const [commits, setCommits] = useState<any[]>([]);
 
-  useEffect(() => {
-    const fetchCommits = async () => {
-      try {
-        const response = await axios.get(`https://api.github.com/repos/${username}/${repository}/commits`);
-        setCommits(response.data);
-      } catch (error) {
-        console.error('Error fetching commits:', error);
-      }
-    };
+  const columns = [
+    { header: '#', accessor: 'sha', accessor2:'' },
+    { header: 'Commit Message', accessor: 'commit.message', accessor2:'' },
+    { header: 'Author', accessor: 'author.login', accessor2: 'author.avatar_url' },
+  ];
 
-    fetchCommits();
-  }, [username, repository]);
+  const fetchCommits = async () => {
+    try {
+      const response = await axios.get(`https://api.github.com/repos/${username}/${repository}/commits`);
+      console.log(response.data);
+      setCommits(response.data);
+    } catch (error) {
+      console.error('Error fetching commits:', error);
+    }
+  };
+
+  useEffect(() => {
+    if(commits.length < 1){
+      fetchCommits();
+    }else{
+      setInterval(()=>{
+        fetchCommits();
+      },5000)
+    }
+  }, []);
 
   return (
     <div>
-      <h2 className="bg-blue-500 text-white p-4">Git Commit History</h2>
-      {commits.length > 0 && (
-  <ul className='ml-2 mt-2 list-inside list-disc'>
-    {commits.map((commit: any) => (
-      <li key={commit?.sha}>
-        {commit?.sha?.slice(0, 6)} <strong>{commit?.commit?.author?.name}:</strong> {commit?.commit?.message}
-      </li>
-    ))}
-  </ul>
-)}
+      <h2 className="bg-gradient-to-r from-red-500 to-cyan-500  text-center text-white p-4">Git Commit History</h2>
+      <Table data={commits} columns={columns} />
     </div>
   );
 };
