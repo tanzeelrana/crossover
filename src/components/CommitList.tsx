@@ -22,13 +22,13 @@ const CommitList: React.FC<{ username: string, repository: string }> = ({ userna
   };
 
   useEffect(() => {
-    if(commits.length < 1){
-      fetchCommits();
-    }else{
-      setInterval(()=>{
-        fetchCommits();
-      },5000)
-    }
+    const fetchAndSetCommits = async () => {
+      await fetchCommits();
+      const intervalId = setInterval(fetchCommits, 5000);
+      return () => clearInterval(intervalId);
+    };
+  
+    fetchAndSetCommits();
   }, []);
 
   return (
