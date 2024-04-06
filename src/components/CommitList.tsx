@@ -14,7 +14,6 @@ const CommitList: React.FC<{ username: string, repository: string }> = ({ userna
   const fetchCommits = async () => {
     try {
       const response = await axios.get(`https://api.github.com/repos/${username}/${repository}/commits`);
-      console.log(response.data);
       setCommits(response.data);
     } catch (error) {
       console.error('Error fetching commits:', error);
